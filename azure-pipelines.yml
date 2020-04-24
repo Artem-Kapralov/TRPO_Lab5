@@ -1,0 +1,63 @@
+# .NET Desktop
+# Build and run tests for .NET Desktop or Windows classic desktop solutions.
+# Add steps that publish symbols, save build artifacts, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/apps/windows/dot-net
+
+trigger:
+- master
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  solution: '**/*.sln'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+
+steps:
+- task: NuGetToolInstaller@1
+
+- task: NuGetCommand@2
+  inputs:
+    restoreSolution: '$(solution)'
+
+- task: VSBuild@1
+  inputs:
+    solution: '$(solution)'
+    platform: '$(buildPlatform)'
+    configuration: '$(buildConfiguration)'
+
+- task: VSTest@2
+  inputs:
+    platform: '$(buildPlatform)'
+    configuration: '$(buildConfiguration)'
+
+steps:
+- task: DownloadBuildArtifacts@0
+  displayName: 'Download Build Artifacts'
+  inputs:
+    artifactName: drop
+    itemPattern: '*.exe'
+
+steps:
+- task: ArchiveFiles@2
+  displayName: 'Archive $(Agent.ReleaseDirectory)\Artem-Kapralov.TRPO_Lab5\drop\PingPong\bin\Release\'
+  inputs:
+    rootFolderOrFile: '$(Agent.ReleaseDirectory)\Artem-Kapralov.TRPO_Lab5\drop\PingPong\bin\Release\'
+    archiveFile: '$(Agent.ReleaseDirectory)\Artem-Kapralov.TRPO_Lab5\drop\$(Build.BuildId).zip'
+    verbose: true
+
+steps:
+- task: GitHubRelease@0
+  displayName: 'GitHub release (create)'
+  inputs:
+    gitHubConnection: Artem-Kapralov
+    repositoryName: Artem-Kapralov/PingPong
+    tagSource: manual
+    tag: '$(Release.ReleaseName)'
+    title: '$(Release.ReleaseName)'
+    releaseNotesSource: input
+    releaseNotes: '$(Release.ReleaseName)'
+    assets: |
+     $(Agent.ReleaseDirectory)\Artem-Kapralov.PingPong\drop\*.zip
+     
