@@ -99,6 +99,7 @@ class cGameManger
 {
 private:
 	int width, height;
+	int score1, score2;
 	char up1, down1, up2, down2;
 	bool quit;
 	cBall * ball;
@@ -111,6 +112,7 @@ public:
 		quit = false;
 		up1 = 'w'; up2 = 'i';
 		down1 = 's'; down2 = 'k';
+		score1 = score2 = 0;
 		width = w; height = h;
 		ball = new cBall(w / 2, h / 2);
 		player1 = new cPaddle(1, h / 2 - 3);
@@ -119,6 +121,17 @@ public:
 	~cGameManger()
 	{
 		delete ball, player1, player2;
+	}
+	void ScoreUp(cPaddle * player) //подсчет очков
+	{
+		if (player == player1)
+			score1++;
+		else if (player == player2)
+			score2++;
+
+		ball->Reset();
+		player1->Reset();
+		player2->Reset();
 	}
 	void Draw()
 	{
@@ -175,6 +188,8 @@ public:
 		for (int i = 0; i < width + 2; i++) //нижняя граница
 			cout << "=";
 		cout << endl;
+
+		cout << "Score 1: " << score1 << endl << "Score 2: " << score2 << endl;
 	}
 	void Input()
 	{
@@ -237,13 +252,12 @@ public:
 		//верхняя стена
 		if (bally == 0)
 			ball->changeDirection(ball->getDirection() == UPRIGHT ? DOWNRIGHT : DOWNLEFT);
-		//левые и правые ворота
-		if (ballx == 0 || ballx == width - 1)
-		{
-			ball->Reset();
-			player1->Reset();
-			player2->Reset();
-		}
+		//правые ворота
+		if (ballx == width - 1)
+			ScoreUp(player1);
+		//левые ворота
+		if (ballx == 0)
+			ScoreUp(player2);
 	}
 	void Run()
 	{
