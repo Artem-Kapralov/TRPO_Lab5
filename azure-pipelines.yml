@@ -60,5 +60,5 @@ steps:
     releaseNotesSource: input
     releaseNotes: '$(Release.ReleaseName)'
     assets: |
-     $(Agent.ReleaseDirectory)\Artem-Kapralov.PingPong\drop\*.zip
+     $(Agent.ReleaseDirectory)\Artem-Kapralov.TRPO_Lab5\drop\*.zip
      
